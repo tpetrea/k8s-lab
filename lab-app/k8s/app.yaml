@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: lab-app
-          image: lab-app:1.0
+          image: k8slabtpetrea31254.azurecr.io/lab-app:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
