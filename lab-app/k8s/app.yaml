@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lab-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: lab-app
+  template:
+    metadata:
+      labels:
+        app: lab-app
+    spec:
+      containers:
+        - name: lab-app
+          image: lab-app:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 40
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lab-app
+spec:
+  selector:
+    app: lab-app
+  ports:
+    - port: 80
+      targetPort: 8080
